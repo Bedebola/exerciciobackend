@@ -10,7 +10,7 @@ public class Endereco {
     private Long id;
 
     @Column(nullable = false)
-    private Long cep;
+    private String cep;
 
     @Column(nullable = false)
     private String logradouro;
@@ -35,7 +35,15 @@ public class Endereco {
     public Endereco() {
     }
 
-    public Endereco(Long id, Long cep, String logradouro, String bairro, int numero, String cidade, String estado) {
+    public Cliente getCliente() {
+        return cliente;
+    }
+
+    public void setCliente(Cliente cliente) {
+        this.cliente = cliente;
+    }
+
+    public Endereco(Long id, String cep, String logradouro, String bairro, int numero, String cidade, String estado, Cliente cliente) {
         this.id = id;
         this.cep = cep;
         this.logradouro = logradouro;
@@ -43,6 +51,7 @@ public class Endereco {
         this.numero = numero;
         this.cidade = cidade;
         this.estado = estado;
+        this.cliente = cliente;
     }
 
     public Long getId() {
@@ -53,11 +62,11 @@ public class Endereco {
         this.id = id;
     }
 
-    public Long getCep() {
+    public String getCep() {
         return cep;
     }
 
-    public void setCep(Long cep) {
+    public void setCep(String cep) {
         this.cep = cep;
     }
 

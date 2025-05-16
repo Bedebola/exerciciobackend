@@ -1,8 +1,10 @@
 package com.backendapi.services;
 
+import com.backendapi.dtos.ClienteDTO;
 import com.backendapi.entities.Cliente;
+import com.backendapi.entities.Endereco;
+import com.backendapi.exceptions.SenacException;
 import com.backendapi.repositories.ClienteRepository;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,15 +14,17 @@ import java.util.List;
 public class ClienteService {
 
     @Autowired
-    ClienteRepository clienteRepository;
+    private ClienteRepository clienteRepository;
+    @Autowired
+    private EnderecoService enderecoService;
 
 
-    public List<Cliente> listarClientes() {
+    public List<Cliente> listarClientes() throws SenacException {
 
         List<Cliente> listaRetorno = clienteRepository.findAll();
 
         if (listaRetorno.isEmpty()) {
-            throw new RuntimeException("A tabela de Clientes encontra-se vazia");
+            throw new SenacException("A tabela de Clientes encontra-se vazia");
         }
 
         return listaRetorno;
@@ -47,10 +51,36 @@ public class ClienteService {
         return clienteRepository.save(cliente);
     }
 
-    public Cliente editarCliente(Long id, Cliente cliente){
+    public Cliente cadastrarClienteCompleto(ClienteDTO cliente) throws  SenacException{
+        Cliente clienteRecord = new Cliente();
+        clienteRecord.setNome(cliente.getNome());
+        clienteRecord.setSobrenome(cliente.getSobrenome());
+        clienteRecord.setDataNascimento(cliente.getDataNascimento());
+        clienteRecord.setEmail(cliente.getEmail());
+        clienteRecord.setIdade(cliente.getIdade());
+        clienteRecord.setDdd(cliente.getDdd());
+        clienteRecord.setTelefone(cliente.getTelefone());
+        clienteRecord.setSexo(cliente.getSexo());
+        clienteRecord.setDocumento(cliente.getDocumento());
+
+        Cliente clienteRetorno = this.cadastrarCliente(clienteRecord);
+
+        if(cliente.getEnderecos() != null &&
+                cliente.getEnderecos().isEmpty() == false) {
+            List<Endereco> enderecosResult =
+                    enderecoService.cadastrarEnderecos(clienteRetorno, cliente.getEnderecos());
+
+            clienteRetorno.setEnderecos(enderecosResult);
+        }
+
+        return clienteRetorno;
+    }
+
+
+    public Cliente editarCliente(Long id, Cliente cliente) throws SenacException {
 
         Cliente clienteRecord = clienteRepository.findById(id)
-                .orElseThrow(()->new IllegalArgumentException("Não localizado!"));
+                .orElseThrow(()->new SenacException("Não localizado!"));
 
 
         if (cliente.getNome() == null || cliente.getNome().isEmpty()){
@@ -100,9 +130,9 @@ public class ClienteService {
         return clienteRepository.save(clienteRecord);
     }
 
-    public void excluirCliente (Long id){
+    public void excluirCliente (Long id) throws SenacException {
         if (!clienteRepository.existsById(id)){
-            throw new EntityNotFoundException("Cliente não encontrado");
+            throw new SenacException("Cliente não encontrado");
         }
         
          clienteRepository.deleteById(id);

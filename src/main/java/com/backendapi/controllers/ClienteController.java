@@ -1,6 +1,8 @@
 package com.backendapi.controllers;
 
+import com.backendapi.dtos.ClienteDTO;
 import com.backendapi.entities.Cliente;
+import com.backendapi.exceptions.SenacException;
 import com.backendapi.services.ClienteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,75 +15,72 @@ import java.util.List;
 public class ClienteController {
 
 
- @Autowired
- ClienteService clienteService;
+    @Autowired
+    ClienteService clienteService;
 
 
     @GetMapping("/listar")
-    ResponseEntity<List<Cliente>> listarClientes(){
-        List<Cliente> clienteListRetorno = clienteService.listarClientes();
+    ResponseEntity<List<Cliente>> listarClientes() throws SenacException {
+        List<Cliente> lsitaRetorno = clienteService.listarClientes();
 
-        if (clienteListRetorno.isEmpty()) {
+        if (lsitaRetorno.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
-        return ResponseEntity.ok(clienteListRetorno);
+        return ResponseEntity.ok(lsitaRetorno);
     }
 
     @PostMapping("/novo")
     ResponseEntity<?> cadastrarCliente(
-            @RequestBody Cliente cliente){
-    try {
-        Cliente cadastrarCliente = clienteService.cadastrarCliente(cliente);
-        return ResponseEntity.ok().body(cliente);
-    } catch (IllegalArgumentException e){
-        return ResponseEntity.badRequest().body("Erro: "+ e.getMessage());
-    } catch (Exception e){
-        return ResponseEntity.badRequest().body("Erro");
+            @RequestBody Cliente cliente) {
+        try {
+            Cliente cadastrarCliente = clienteService.cadastrarCliente(cliente);
+            return ResponseEntity.ok().body(cliente);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Erro: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Erro");
+        }
     }
-}
 
-@PutMapping("/editar")
+    @PostMapping("/cadastrarClienteCompleto")
+    ResponseEntity<?> criarClienteCompleto(
+            @RequestBody ClienteDTO cliente
+    ) {
+        try {
+            return ResponseEntity
+                    .created(null)
+                    .body(clienteService.cadastrarClienteCompleto(cliente));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+    @PutMapping("/editar/{id}")
     ResponseEntity<?> editarCliente(
-            @RequestParam Long id,
+            @PathVariable Long id,
             @RequestBody Cliente cliente
-){
-    try {
-        Cliente editarCliente = clienteService.editarCliente(id, cliente);
-        return ResponseEntity.ok().body(cliente);
-    } catch (IllegalArgumentException e){
-        return ResponseEntity.badRequest().body("Erro: "+ e.getMessage());
-    } catch (Exception e){
-        return ResponseEntity.badRequest().body("Erro");
+    ) {
+        try {
+            Cliente editarCliente = clienteService.editarCliente(id, cliente);
+            return ResponseEntity.ok().body(cliente);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Erro: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Erro");
+        }
     }
-}
 
-@DeleteMapping("/excluir")
+    @DeleteMapping("/excluir/{id}")
     ResponseEntity<?> excluirCliente(
-            @RequestParam Long id
-){
-    try {
-        clienteService.excluirCliente(id);
-        return ResponseEntity.noContent().build();
-    } catch (Exception e){
-        return ResponseEntity.badRequest().body("Erro");
+            @PathVariable Long id
+    ) {
+        try {
+            clienteService.excluirCliente(id);
+            return ResponseEntity.noContent().build();
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Erro");
+        }
     }
-}
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

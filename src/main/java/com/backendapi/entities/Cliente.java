@@ -2,6 +2,7 @@ package com.backendapi.entities;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -28,7 +29,7 @@ public class Cliente {
 
     private String sexo;
 
-    private LocalDateTime dataNascimento;
+    private LocalDate dataNascimento;
 
     private int ddd;
 
@@ -37,10 +38,14 @@ public class Cliente {
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Endereco> enderecos;
 
+    @OneToMany(mappedBy = "pedido", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Pedido pedido;
+
+
     public Cliente() {
     }
 
-    public Cliente(Long id, String nome, String documento, String sobrenome, String email, int idade, String sexo, LocalDateTime dataNascimento, int ddd, int telefone) {
+    public Cliente(Long id, String nome, String documento, String sobrenome, String email, int idade, String sexo, LocalDate dataNascimento, int ddd, int telefone, List<Endereco> enderecos, Pedido pedido) {
         this.id = id;
         this.nome = nome;
         this.documento = documento;
@@ -51,6 +56,8 @@ public class Cliente {
         this.dataNascimento = dataNascimento;
         this.ddd = ddd;
         this.telefone = telefone;
+        this.enderecos = enderecos;
+        this.pedido = pedido;
     }
 
     public Long getId() {
@@ -109,11 +116,11 @@ public class Cliente {
         this.sexo = sexo;
     }
 
-    public LocalDateTime getDataNascimento() {
+    public LocalDate getDataNascimento() {
         return dataNascimento;
     }
 
-    public void setDataNascimento(LocalDateTime dataNascimento) {
+    public void setDataNascimento(LocalDate dataNascimento) {
         this.dataNascimento = dataNascimento;
     }
 
@@ -131,6 +138,22 @@ public class Cliente {
 
     public void setTelefone(int telefone) {
         this.telefone = telefone;
+    }
+
+    public List<Endereco> getEnderecos() {
+        return enderecos;
+    }
+
+    public void setEnderecos(List<Endereco> enderecos) {
+        this.enderecos = enderecos;
+    }
+
+    public Pedido getPedido() {
+        return pedido;
+    }
+
+    public void setPedido(Pedido pedido) {
+        this.pedido = pedido;
     }
 }
 

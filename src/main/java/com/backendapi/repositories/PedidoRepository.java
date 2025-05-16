@@ -1,2 +1,7 @@
-package com.backendapi.repositories;public class PedidoRepository {
+package com.backendapi.repositories;
+
+import com.backendapi.entities.Pedido;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface PedidoRepository extends JpaRepository<Pedido, Long> {
 }
