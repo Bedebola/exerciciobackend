@@ -1,9 +1,11 @@
 package com.backendapi.controllers;
 
+import com.backendapi.dtos.PedidoDTO;
 import com.backendapi.entities.Pedido;
 import com.backendapi.exceptions.SenacException;
 import com.backendapi.services.PedidoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,6 +56,19 @@ public class PedidoController {
             return ResponseEntity.badRequest().body("Erro");
         }
     }
+
+    @PostMapping("/cadastrar-com-itens")
+    public ResponseEntity<?> cadastrarPedidoComItens(@RequestBody PedidoDTO pedidoDTO) {
+        try {
+            Pedido novoPedido = pedidoService.cadastrarPedidoComItens(pedidoDTO);
+            return ResponseEntity.ok(novoPedido);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body("Erro: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Erro ao cadastrar pedido com itens.");
+        }
+    }
+
 
     @PutMapping("/atualizar-endereco/{pedidoId}")
     public ResponseEntity<?> atualizarEndereco(

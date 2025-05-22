@@ -1,12 +1,10 @@
 package com.backendapi.services;
 
-import com.backendapi.entities.Cliente;
-import com.backendapi.entities.Endereco;
-import com.backendapi.entities.Pedido;
+import com.backendapi.dtos.PedidoDTO;
+import com.backendapi.dtos.PedidoItemDTO;
+import com.backendapi.entities.*;
 import com.backendapi.exceptions.SenacException;
-import com.backendapi.repositories.ClienteRepository;
-import com.backendapi.repositories.EnderecoRepository;
-import com.backendapi.repositories.PedidoRepository;
+import com.backendapi.repositories.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +16,12 @@ public class PedidoService {
 
     @Autowired
     private PedidoRepository pedidoRepository;
+
+    @Autowired
+    private ProdutoRepository produtoRepository;
+
+    @Autowired
+    private PedidoItemRepository pedidoItemRepository;
 
     @Autowired
     private ClienteRepository clienteRepository;
@@ -55,6 +59,36 @@ public class PedidoService {
 
         return pedidoRepository.save(pedido);
     }
+
+    public Pedido cadastrarPedidoComItens(PedidoDTO pedido){
+
+        Pedido pedidoRecord = new Pedido();
+        pedidoRecord.setValorTotal(pedido.getValorTotal());
+        pedidoRecord.setCliente(pedido.getCliente());
+        pedidoRecord.setEndereco(pedido.getEndereco());
+        pedidoRecord.setDataCriacao(LocalDateTime.now());
+
+        Pedido pedidoSalvo = pedidoRepository.save(pedidoRecord);
+
+        for (PedidoItemDTO itemDTO : pedido.getPedidoItens()){
+            PedidoItem item = new PedidoItem();
+            item.setPedido(pedidoSalvo);
+
+            Produto produto = produtoRepository.findById(itemDTO.getProdutoId())
+                    .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+
+            item.setProduto(produto);
+            item.setQuantidade(itemDTO.getQuantidade());
+            item.setValorUnitario(itemDTO.getValorUnitario());
+
+            pedidoItemRepository.save(item);
+        }
+
+        return pedidoSalvo;
+
+    }
+
+
 
     public Pedido atualizarEnderecoEntrega(Long pedidoId, Long novoEnderecoId) {
         Pedido pedido = pedidoRepository.findById(pedidoId)
